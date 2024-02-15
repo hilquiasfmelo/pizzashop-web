@@ -27,7 +27,7 @@ export function AccountMenu() {
       {/* Conteúdo interno do Dropdown */}
       <DropdownMenuContent align="end">
         <DropdownMenuLabel className="flex flex-col">
-          <span>Hilquias Ferreira Melo</span>
+          <span className="font-normal">Hilquias Ferreira Melo</span>
           <span className="text-xs font-normal text-muted-foreground">
             hilquiasfmelo@hotmail.com
           </span>
