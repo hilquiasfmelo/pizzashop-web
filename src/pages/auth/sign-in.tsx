@@ -30,6 +30,10 @@ export function SignIn() {
           label: 'Reenviar',
           onClick: () => handleSignIn(data),
         },
+        actionButtonStyle: {
+          backgroundColor: 'green',
+          color: 'white',
+        },
       })
     } catch {
       toast.error('Credenciais inválidas.', {
