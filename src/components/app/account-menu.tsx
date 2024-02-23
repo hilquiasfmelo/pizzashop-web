@@ -13,21 +13,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import { Skeleton } from '../ui/skeleton'
 
 export function AccountMenu() {
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile'],
     queryFn: getProfile,
   })
 
-  const { data: restaurant } = useQuery({
+  const { data: restaurant, isLoading: isLoadingRestaurant } = useQuery({
     queryKey: ['restaurant'],
     queryFn: getManagedRestaurant,
   })
-
-  if (!profile || !restaurant) {
-    return
-  }
 
   return (
     <DropdownMenu>
@@ -37,7 +34,11 @@ export function AccountMenu() {
           variant="outline"
           className="flex select-none items-center gap-2"
         >
-          {restaurant.name}
+          {isLoadingRestaurant ? (
+            <Skeleton className="h-4 w-24" />
+          ) : (
+            restaurant?.name
+          )}
           <ChevronDown className="h4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -45,10 +46,20 @@ export function AccountMenu() {
       {/* Conteúdo interno do Dropdown */}
       <DropdownMenuContent align="end">
         <DropdownMenuLabel className="flex flex-col">
-          <span className="font-normal">{profile.name}</span>
-          <span className="text-xs font-normal text-muted-foreground">
-            {profile.email}
-          </span>
+          {/* Condição para mostrar o Skeleton na tela */}
+          {isLoadingProfile ? (
+            <div className="w-auto space-y-1.5">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-40" />
+            </div>
+          ) : (
+            <>
+              <span className="font-normal">{profile?.name}</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {profile?.email}
+              </span>
+            </>
+          )}
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
