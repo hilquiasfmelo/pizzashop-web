@@ -1,8 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
-import { Building, ChevronDown, LogOut } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Building, ChevronDown, Loader2, LogOut } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 import { getManagedRestaurant } from '@/api/get-managed-restaurant'
 import { getProfile } from '@/api/get-profile'
+import { signOut } from '@/api/sing-out'
 
 import { Button } from '../ui/button'
 import { Dialog, DialogTrigger } from '../ui/dialog'
@@ -18,6 +20,8 @@ import { Skeleton } from '../ui/skeleton'
 import { StoreProfileDialog } from './store-profile-dialog'
 
 export function AccountMenu() {
+  const navigate = useNavigate()
+
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile'],
     queryFn: getProfile,
@@ -28,6 +32,18 @@ export function AccountMenu() {
     queryKey: ['restaurant'],
     queryFn: getManagedRestaurant,
     staleTime: Infinity,
+  })
+
+  const { mutateAsync: signOutFn, isPending: isSingingOut } = useMutation({
+    mutationFn: signOut,
+    onSuccess: () => {
+      /**
+       * replace => essa propriedade como true,
+       * se o usuário clicar no botão de voltar,
+       * ele não vai conseguir voltar para a página que estava
+       */
+      navigate('/sign-in', { replace: true })
+    },
   })
 
   return (
@@ -75,9 +91,22 @@ export function AccountMenu() {
               <span>Perfil da loja</span>
             </DropdownMenuItem>
           </DialogTrigger>
-          <DropdownMenuItem className="text-rose-600 dark:text-rose-500">
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Sair</span>
+
+          <DropdownMenuItem
+            asChild
+            className="text-rose-600 dark:text-rose-500"
+          >
+            {isSingingOut ? (
+              <button className="w-full">
+                <LogOut className="mr-2 h-4 w-4 animate-spin" />
+                <span>Sair</span>
+              </button>
+            ) : (
+              <button className="w-full" onClick={() => signOutFn()}>
+                <Loader2 className="mr-2 h-4 w-4 " />
+                <span>Sair</span>
+              </button>
+            )}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
