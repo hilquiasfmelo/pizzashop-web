@@ -25,7 +25,7 @@ import { Label } from '../ui/label'
 import { Textarea } from '../ui/textarea'
 
 const storeProfileDialogSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1, 'O nome do estabelecimento é obrigatório.'),
   description: z.string(),
 })
 
@@ -44,7 +44,7 @@ export function StoreProfileDialog() {
     register,
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<StoreProfileDialogType>({
     resolver: zodResolver(storeProfileDialogSchema),
     values: {
@@ -53,29 +53,47 @@ export function StoreProfileDialog() {
     },
   })
 
-  const { mutateAsync: updateProfileFn } = useMutation({
+  function updateManagedRestaurantCache({
+    name,
+    description,
+  }: StoreProfileDialogType) {
+    // Retorna a informação atual dos dados do perfil, passando a chave da query que será atualizada
+    const cached = queryClient.getQueryData<GetManagedRestaurantResponse>([
+      'restaurant',
+    ])
+
+    // Verifica se tem um cache existente
+    if (cached) {
+      // Adiciona os dados atualizados para dentro do cache que tem a chave específica
+      queryClient.setQueryData<GetManagedRestaurantResponse>(['restaurant'], {
+        // Significa que todo o resto das informação ficará igual e será mudada apenas o que passo abaixo disso.
+        // Mantém as informações existentes e é alterado somente os campos name e description.
+        ...cached,
+        name,
+        description,
+      })
+    }
+
+    return { cached }
+  }
+
+  const { mutateAsync: updateProfileFn, isPending } = useMutation({
     mutationFn: updateProfile,
     /**
-     *  data || _ => Quais dados foram retornados pela requisição
-     *  variables {name , description} => retorna os dados que foram usados para atualizar o perfil
-     *  context || _ => não será usando nesse caso
+     *  variables { name, description } => retorna os dados que foram usados para atualizar o perfil
      */
-    onSuccess(_, { name, description }) {
-      // Retorna a informação atual dos dados do perfil, passando a chave da query que será atualizada
-      const cached = queryClient.getQueryData<GetManagedRestaurantResponse>([
-        'restaurant',
-      ])
+    onMutate({ name, description }) {
+      const { cached } = updateManagedRestaurantCache({
+        name,
+        description,
+      })
 
-      // Verifica se tem um cache existente
-      if (cached) {
-        // Adiciona os dados atualizados para dentro do cache que tem a chave específica
-        queryClient.setQueryData<GetManagedRestaurantResponse>(['restaurant'], {
-          // Significa que todo o resto das informação ficará igual e será mudada apenas o que passo abaixo disso.
-          // Mantém as informações existentes e é alterado somente os campos name e description.
-          ...cached,
-          name,
-          description,
-        })
+      return { previousCached: cached }
+    },
+    // context => informação que conseguimos compartilhar
+    onError(_error, _variables, context) {
+      if (context?.previousCached) {
+        updateManagedRestaurantCache(context.previousCached)
       }
     },
   })
@@ -120,6 +138,9 @@ export function StoreProfileDialog() {
               type="text"
               {...register('name')}
             />
+            {errors.name && (
+              <span className="hidden">{toast.error(errors.name.message)}</span>
+            )}
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
@@ -142,9 +163,9 @@ export function StoreProfileDialog() {
               Cancelar
             </Button>
           </DialogClose>
-          {isSubmitting ? (
-            <Button type="submit" variant="success">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          {isPending ? (
+            <Button variant="success" disabled={isSubmitting}>
+              <Loader2 className="h4 mr-2 w-4 animate-spin" />
               Salvando
             </Button>
           ) : (
