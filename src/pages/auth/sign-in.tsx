@@ -34,6 +34,7 @@ export function SignIn() {
     defaultValues: {
       email: searchParams.get('email') || '',
     },
+    reValidateMode: 'onSubmit',
   })
 
   /**
@@ -124,17 +125,20 @@ export function SignIn() {
             )}
           </form>
           <Separator />
-          <div className="flex cursor-pointer items-center justify-between rounded-sm border p-3 text-foreground hover:bg-muted-foreground/10 hover:transition-colors">
+          <Link
+            to="/sign-up"
+            className="flex cursor-pointer items-center justify-between rounded-sm border p-3 text-foreground hover:bg-muted-foreground/10 hover:transition-colors"
+          >
             <div className="flex flex-col justify-start gap-1">
-              <span className="font-semibold tracking-tight">
+              <span className="font-medium tracking-tight">
                 Sem estabelecimento cadastrado?
               </span>
-              <Link to="/sign-up" className="text-sm text-muted-foreground">
-                Cadastre-se
-              </Link>
+              <p className="text-sm text-muted-foreground">
+                Realize seu cadastro aqui
+              </p>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
+          </Link>
         </div>
       </div>
     </>

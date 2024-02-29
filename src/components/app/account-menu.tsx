@@ -35,7 +35,7 @@ export function AccountMenu() {
     staleTime: Infinity,
   })
 
-  const { mutateAsync: signOutFn } = useMutation({
+  const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
     mutationFn: signOut,
     onSuccess: () => {
       /**
@@ -96,12 +96,10 @@ export function AccountMenu() {
 
           <DropdownMenuItem
             asChild
-            className="text-rose-600 hover:text-rose-600 dark:text-rose-500 hover:dark:text-rose-500"
+            className="cursor-pointer text-rose-600 hover:text-rose-600 dark:text-rose-500 hover:dark:text-rose-500"
+            disabled={isSigningOut}
           >
-            <button
-              className="w-full cursor-pointer"
-              onClick={() => signOutFn()}
-            >
+            <button className="w-full" onClick={() => signOutFn()}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Sair</span>
             </button>
