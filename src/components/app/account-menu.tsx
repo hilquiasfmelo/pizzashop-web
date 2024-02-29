@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Building, ChevronDown, Loader2, LogOut } from 'lucide-react'
+import { Building, ChevronDown, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import { getManagedRestaurant } from '@/api/get-managed-restaurant'
 import { getProfile } from '@/api/get-profile'
@@ -34,7 +35,7 @@ export function AccountMenu() {
     staleTime: Infinity,
   })
 
-  const { mutateAsync: signOutFn, isPending: isSingingOut } = useMutation({
+  const { mutateAsync: signOutFn } = useMutation({
     mutationFn: signOut,
     onSuccess: () => {
       /**
@@ -43,6 +44,7 @@ export function AccountMenu() {
        * ele não vai conseguir voltar para a página que estava
        */
       navigate('/sign-in', { replace: true })
+      toast.success('Você foi deslogado com sucesso.')
     },
   })
 
@@ -86,7 +88,7 @@ export function AccountMenu() {
           <DropdownMenuSeparator />
 
           <DialogTrigger asChild>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <Building className="mr-2 h-4 w-4" />
               <span>Perfil da loja</span>
             </DropdownMenuItem>
@@ -94,19 +96,15 @@ export function AccountMenu() {
 
           <DropdownMenuItem
             asChild
-            className="text-rose-600 dark:text-rose-500"
+            className="text-rose-600 hover:text-rose-600 dark:text-rose-500 hover:dark:text-rose-500"
           >
-            {isSingingOut ? (
-              <button className="w-full">
-                <LogOut className="mr-2 h-4 w-4 animate-spin" />
-                <span>Sair</span>
-              </button>
-            ) : (
-              <button className="w-full" onClick={() => signOutFn()}>
-                <Loader2 className="mr-2 h-4 w-4 " />
-                <span>Sair</span>
-              </button>
-            )}
+            <button
+              className="w-full cursor-pointer"
+              onClick={() => signOutFn()}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sair</span>
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
