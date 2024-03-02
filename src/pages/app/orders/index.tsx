@@ -19,6 +19,10 @@ import { OrderTableRow } from './table-row'
 export function Orders() {
   const [searchParams, setSearchParams] = useSearchParams()
 
+  const orderId = searchParams.get('orderId')
+  const customerName = searchParams.get('customerName')
+  const status = searchParams.get('status')
+
   // coerce => busca algo e tenta converter em um número
   const pageIndex = z.coerce
     .number()
@@ -34,9 +38,15 @@ export function Orders() {
       devemos adicioná-lo na queryKey para que as alterações
       reflitam em todas as páginas que usam a mesma queryKey
     */
-    queryKey: ['orders', pageIndex],
+    queryKey: ['orders', pageIndex, orderId, customerName, status],
     // Quando recebemos parâmentros dentro da função chamamos ela dessa forma no queryFn
-    queryFn: () => gerOrders({ pageIndex }),
+    queryFn: () =>
+      gerOrders({
+        pageIndex,
+        orderId,
+        customerName,
+        status: status === 'all' ? null : status,
+      }),
   })
 
   function handlePaginate(pageIndex: number) {
