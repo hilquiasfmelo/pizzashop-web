@@ -132,15 +132,19 @@ export function StoreProfileDialog() {
             <Label className="text-right" htmlFor="name">
               Nome
             </Label>
-            <Input
-              className="col-span-3"
-              id="name"
-              type="text"
-              {...register('name')}
-            />
-            {errors.name && (
-              <span className="hidden">{toast.error(errors.name.message)}</span>
-            )}
+            <div className="col-span-3 flex flex-col items-start gap-2">
+              <Input
+                className="col-span-3"
+                id="name"
+                type="text"
+                {...register('name')}
+              />
+              {errors.name && (
+                <span className="text-xs text-red-600 dark:text-red-500">
+                  {errors.name?.message}
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
